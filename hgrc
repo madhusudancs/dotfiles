@@ -1,0 +1,50 @@
+[ui]
+username = Madhusudan.C.S <madhusudancs@gmail.com>
+
+[extensions]
+color=
+rebase=
+hgk=
+mq=
+graphlog=
+churn=
+fetch=
+hgcia=
+record=
+shelve=/media/python/rcs/mercurial/hgshelve.py
+crecord=/media/python/rcs/mercurial/crecord/crecord
+pager=
+
+[hgk]
+path=/media/python/rcs/mercurial/hg/contrib/hgk
+
+[color]
+status.modified = blue bold underline red_background
+status.added = green bold
+status.removed = red bold blue_background
+status.deleted = cyan bold underline
+status.unknown = magenta bold underline
+status.ignored = black bold
+status.clean = none
+status.copied = none
+qseries.applied = blue bold underline
+qseries.unapplied = black bold
+qseries.missing = red bold
+diff.diffline = bold
+diff.extended = cyan bold
+diff.file_a = yellow bold
+diff.file_b = yellow bold
+diff.hunk = magenta bold
+diff.deleted = red bold
+diff.inserted = green bold
+diff.changed = white
+diff.trailingwhitespace = bold red_background
+
+[pager]
+pager = LESS='FSRX' less
+attend = annotate, cat, diff, export, glog, log, qdiff
+
+#[http_proxy]
+#host=10.101.1.5:80
+#passwd=Fossee321Python
+#user=fossee
