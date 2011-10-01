@@ -1,14 +1,8 @@
 [user]
 	name = Madhusudan.C.S
 	email = madhusudancs@gmail.com
-[http]
-	proxy = 
-[https]
-	proxy = 
 [alias]
 	fw = !git commit -qam 'fix whitespace' && git rebase -q --whitespace=fix HEAD~ && git reset -q HEAD~
-	sp = !git config --global http.proxy "http://fossee:Fossee321Python@10.101.1.5:80/" && git config --global https.proxy "http://fossee:Fossee321Python@10.101.1.5:80/"
-	up = !git config --global http.proxy '' && git config --global https.proxy ''
 [color]
         ui = auto
         branch = auto
