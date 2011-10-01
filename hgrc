@@ -44,7 +44,3 @@ diff.trailingwhitespace = bold red_background
 pager = LESS='FSRX' less
 attend = annotate, cat, diff, export, glog, log, qdiff
 
-#[http_proxy]
-#host=10.101.1.5:80
-#passwd=Fossee321Python
-#user=fossee
