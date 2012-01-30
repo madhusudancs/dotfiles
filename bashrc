@@ -118,14 +118,6 @@ function mpy {
   cd /media/python
 }
 
-function sshfs {
-  ssh madhusudancs@fossee.in
-}
-
-function spcon {
-  cd /media/python/workspace/scipycon/ 
-}
-
 function wos {
   cd /media/python/workspace/
 }
@@ -136,65 +128,31 @@ function sshos {
 
 function sermel {
   cd /media/python/workspace/melange
-  python2.6 ./thirdparty/google_appengine/dev_appserver.py --datastore_path=/media/python/dev_appserver.datastore --blobstore_path=/media/python/dev_appserver.blobstore --port=8000 --enable_sendmail --show_mail_body --allow_skipped_files --skip_sdk_update_check --default_partition "" build
-}
-
-function tsk {
-  cd /media/python/workspace/pytask
-}
-
-function tskshell {
-  cd /media/python/workspace/pytask
-  ./bin/django shell_plus 
+  command=python
+  if [ -n $1 ]; then
+    command=$command$1
+  fi
+  `$command ./thirdparty/google_appengine/dev_appserver.py --datastore_path=/media/python/dev_appserver.datastore --blobstore_path=/media/python/dev_appserver.blobstore --port=8000 --enable_sendmail --show_mail_body --allow_skipped_files --skip_sdk_update_check --default_partition "" build`
 }
 
 function e {
   emacs
 }
 
-function mes {
-  cd /media/python/workspace/mesos
+function nme {
+  $@;
+  old_status=$?;
+  if [ $old_status -eq 0 ]; then
+    notify-send "Commands successfully executed!";
+  else
+    notify-send "Commands exited with status $old_status";
+  fi
+  return $old_status;
 }
 
-function sp {
-  export http_proxy="http://fossee:Fossee321Python@10.101.1.5:80/"
-  export https_proxy="http://fossee:Fossee321Python@10.101.1.5:80/"
+function g {
+  git $@
 }
-
-function up {
-  unset http_proxy
-  unset https_proxy
-}
-
-function sees {
-  cd /media/python/iitb/sees/
-}
-
-function bsees {
-  cd /media/python/iitb/sees-documentation/source
-}
-
-function rmine {
-  cd /media/python/railsworkspace/redmine
-}
-
-function rmser {
-  cd /media/python/railsworkspace/redmine
-  rvm use 1.8.7-head
-  ruby script/server -e development --debugger
-}
-
-function chi {
-  cd /media/python/railsworkspace/chiliproject
-  rvm use 1.8.7-head
-}
-
-function chiser {
-  cd /media/python/railsworkspace/chiliproject
-  rvm use 1.8.7-head
-  ruby script/server -e development --debugger
-}
-
 
 export PATH=$HOME/.local/bin:/var/lib/gems/1.9.1/bin:$HOME/installs/node/bin:$PATH
 
