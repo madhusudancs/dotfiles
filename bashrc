@@ -151,16 +151,24 @@ function nme {
 }
 
 function g {
-  git $@
+  git $@;
 }
 
-export PATH=$HOME/.local/bin:/var/lib/gems/1.9.1/bin:$HOME/installs/node/bin:$PATH
+function hyd {
+  export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+  export PATH=$PATH:/media/python/workspace/hyracks-read-only/hyracks/hyracks-server/target/hyracks-server-0.1.9-SNAPSHOT-binary-assembly/bin:/media/python/workspace/hyracks-read-only/hyracks/hyracks-cli/target/hyracks-cli-0.1.9-SNAPSHOT-binary-assembly/bin;
+  export JAVA_OPTS="-Xmx1024m";
+}
+
+export PATH=$HOME/.local/bin:/var/lib/gems/1.9.1/bin:$HOME/installs/node/bin:/media/python/workspace/pl241-mcs:$PATH
 
 export EDITOR=vim
 
-export PYTHONPATH=$PYTHONPATH:/home/madhu/.local/lib/python2.6/site-packages/:/home/madhu/.local/lib/python2.7/site-packages/:/home/madhu/.local/lib/
+export PYTHONPATH=$PYTHONPATH:/home/madhu/.local/lib/python2.6/site-packages/:/home/madhu/.local/lib/python2.7/site-packages/:/home/madhu/.local/lib/:/media/python/workspace/sentiment-analyzer:/media/python/workspace/disco/lib:/media/python/workspace/sentiment-analyzer:/media/python/workspace/sentiment-analyzer/analyzer:/media/python/workspace/pl241-mcs
 
 export LD_LIBRARY_PATH=/home/madhu/.local/lib/:/usr/local/lib/
+
+export YCOMP=/media/python/yComp-1.3.16/
 
 export jsmath_path=/usr/share/jsmath
 
@@ -187,3 +195,6 @@ function parse_git_branch {
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm" # Load RVM function
 
+
+export DEBFULLNAME="Madhusudan C.S."
+export DEBEMAIL="madhusudancs@gmail.com"

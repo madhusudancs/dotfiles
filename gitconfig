@@ -1,13 +1,11 @@
 [user]
 	name = Madhusudan.C.S
 	email = madhusudancs@gmail.com
-[alias]
-	fw = !git commit -qam 'fix whitespace' && git rebase -q --whitespace=fix HEAD~ && git reset -q HEAD~
 [color]
-        ui = auto
-        branch = auto
-        diff = auto
-        status = auto
+	ui = auto
+	branch = auto
+	diff = auto
+	status = auto
 [color "branch"]
         current = yellow reverse
         local = yellow
@@ -22,3 +20,9 @@
         changed = green
         untracked = cyan
 
+[alias]
+	fw = !git commit -qam 'fix whitespace' && git rebase -q --whitespace=fix HEAD~ && git reset -q HEAD~ 
+	ap = !git add -p
+	st = status
+	sh = !git show -p HEAD
+	l = log
