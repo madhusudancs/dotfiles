@@ -5,16 +5,18 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-# don't put duplicate lines in the history. See bash(1) for more options
-# ... or force ignoredups and ignorespace
-HISTCONTROL=ignoredups:ignorespace
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
 
 # append to the history file, don't overwrite it
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=10000000000
+HISTFILESIZE=20000000000
+HISTTIMEFORMAT="%F %T"
+shopt -s cmdhist
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -160,7 +162,12 @@ function hyd {
   export JAVA_OPTS="-Xmx1024m";
 }
 
-export PATH=$HOME/.local/bin:/var/lib/gems/1.9.1/bin:$HOME/installs/node/bin:/media/python/workspace/pl241-mcs:$PATH
+export GOROOT=/usr/local/go
+export GOPATH=/home/madhu/.local/golib
+export CGO_CFLAGS="`llvm-config-3.1 --cflags`"
+export CGO_LDFLAGS="`llvm-config-3.1 --ldflags` -W1,L`llvm-config-3.1 --libdir` -lLLVM-`llvm-config-3.1 --version`"
+
+export PATH=$HOME/.local/bin:/var/lib/gems/1.9.1/bin:$HOME/installs/node/bin:/media/python/workspace/pl241-mcs:/media/python/yComp-1.3.16:$GOROOT/bin:/home/madhu/akmaxsat_1.1:$HOME/.rvm/bin:$PATH
 
 export EDITOR=vim
 
@@ -176,9 +183,6 @@ export jsmath_path=/usr/share/jsmath
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 [[ -r $rvm_path/scripts/completion ]] && . $rvm_path/scripts/completion
 
-source $HOME/.kpumukprompt
-
-#source ~/.git_completion.sh
 
 function parse_git_dirty {
   [[ $(git status 2> /dev/null | tail -n1) != "nothing to commit (working directory clean)" ]] && echo " *"
@@ -190,11 +194,10 @@ function parse_git_branch {
 
 #export PS1='\[\e[1;32m\]\w\[\e[0m\]$(__git_ps1 " (\[\e[0;32m\]%s\[\e[0m\]\[\e[1;33m\]$(parse_git_dirty)\[\e[0m\])")\[\e[0;32m\]$\[\e[0m\] '
 
-
-
-
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm" # Load RVM function
-
+source $HOME/.kpumukprompt
 
 export DEBFULLNAME="Madhusudan C.S."
 export DEBEMAIL="madhusudancs@gmail.com"
+
+# Core file limit
+ulimit -c 750000

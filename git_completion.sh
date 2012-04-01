@@ -68,6 +68,11 @@ __git_ps1 ()
 	if [ -n "$g" ]; then
 		local r
 		local b
+		local d
+		[[ $(git status 2> /dev/null | grep "^# Changes not staged for commit:$") == "# Changes not staged for commit:" ]] && d=$d"*"
+		[[ $(git status 2> /dev/null | grep "^# Changes to be committed:$") == "# Changes to be committed:" ]] && d=$d"+"
+		[[ $(git status 2> /dev/null | grep "^# Untracked files:$") == "# Untracked files:" ]] && d=$d"%"
+
 		if [ -d "$g/../.dotest" ]
 		then
 			r="|AM/REBASE"
@@ -96,7 +101,7 @@ __git_ps1 ()
 		fi
 
 		if [ -n "$1" ]; then
-			printf "$1" "${b##refs/heads/}$r"
+			printf "$1" "${b##refs/heads/}$r" "$d"
 		else
 			printf " (%s)" "${b##refs/heads/}$r"
 		fi
