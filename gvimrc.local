@@ -1,11 +1,11 @@
 " GUI Settings {
     " GVIM- (here instead of .gvimrc)
     if has('gui_running')
-        source $VIMRUNTIME/mswin.vim
-        set guioptions-=tT          " remove the toolbar
-        set lines=40                " 40 lines of text instead of 24,
-        set guicursor=a:ver1,a:blinkon0
-        set mouseshape=n:beam,ve:beam,sd:updown
+        source $VIMRUNTIME/mswin.vim              " provides Windows/GTK style copy/paste with Ctrl+C/Ctrl+V
+        set guioptions-=tT                        " remove the toolbar
+        set lines=40                              " 40 lines of text instead of 24,
+        set guicursor=a:ver1,a:blinkon0           " makes the cursor a pipe like cursor without blinking
+        set mouseshape=n:beam,ve:beam,sd:updown   " mouse shapes are similar to rest of the GNOME editors
         if has("gui_gtk2")
             set guifont=Monospace\ Regular\ 12,Menlo\ Regular\ 15,Consolas\ Regular\ 16,Courier\ New\ Regular\ 18
         else
