@@ -100,9 +100,15 @@ fi
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
-if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
+  fi
 fi
+
+eval `dircolors $HOME/ls-colors-solarized/dircolors`
 
 function work {
   cd /media/python/iitb/workshops/
@@ -134,11 +140,11 @@ function sermel {
   if [ -n $1 ]; then
     command=$command$1
   fi
-  `$command ./thirdparty/google_appengine/dev_appserver.py --datastore_path=/media/python/dev_appserver.datastore --blobstore_path=/media/python/dev_appserver.blobstore --port=8000 --enable_sendmail --show_mail_body --allow_skipped_files --skip_sdk_update_check --default_partition "" build`
+  `$command ./thirdparty/google_appengine/dev_appserver.py --use_sqlite --datastore_path=/media/python/melangedatafiles/devdata.sqlite --blobstore_path=/media/python/dev_appserver.blobstore --port=8000 --enable_sendmail --show_mail_body --allow_skipped_files --skip_sdk_update_check --default_partition "" --high_replication build`
 }
 
 function e {
-  emacs
+  gvim
 }
 
 function nme {
@@ -162,16 +168,31 @@ function hyd {
   export JAVA_OPTS="-Xmx1024m";
 }
 
-export GOROOT=/usr/local/go
-export GOPATH=/home/madhu/.local/golib
-export CGO_CFLAGS="`llvm-config-3.1 --cflags`"
-export CGO_LDFLAGS="`llvm-config-3.1 --ldflags` -W1,L`llvm-config-3.1 --libdir` -lLLVM-`llvm-config-3.1 --version`"
+function bhyr {
+  cd /media/python/hyracks-git
+  mvn package install -DskipTests=true
+}
 
-export PATH=$HOME/.local/bin:/var/lib/gems/1.9.1/bin:$HOME/installs/node/bin:/media/python/workspace/pl241-mcs:/media/python/yComp-1.3.16:$GOROOT/bin:/home/madhu/akmaxsat_1.1:$HOME/.rvm/bin:$PATH
+function bast {
+  cd /media/python/asterixdb-megamerge-git/asterix-dist/target/asterix-dist-0.0.4-SNAPSHOT-binary-assembly
+  ./stopasterix.sh
+  bhyr
+  cd /media/python/asterixdb-megamerge-git
+  mvn package -DskipTests=true
+  cd /media/python/asterixdb-megamerge-git/asterix-dist/target/asterix-dist-0.0.4-SNAPSHOT-binary-assembly
+  ./startasterix.sh 2
+  cd /media/python/asterixdb-megamerge-git
+}
+
+export GOROOT=$HOME/go
+export CGO_CFLAGS="`llvm-config --cflags`"
+export CGO_LDFLAGS="`llvm-config --ldflags` -W1,L`llvm-config --libdir` -lLLVM-`llvm-config --version`"
+
+export PATH=$HOME/.local/bin:/var/lib/gems/1.9.1/bin:$HOME/installs/node/bin:/media/python/workspace/pl241-mcs:/media/python/yComp-1.3.16:$GOROOT/bin:/home/madhu/akmaxsat_1.1:$HOME/.rvm/bin:/media/python/llvmbuild/Debug+Asserts/bin:$PATH
 
 export EDITOR=vim
 
-export PYTHONPATH=$PYTHONPATH:/home/madhu/.local/lib/python2.6/site-packages/:/home/madhu/.local/lib/python2.7/site-packages/:/home/madhu/.local/lib/:/media/python/workspace/sentiment-analyzer:/media/python/workspace/disco/lib:/media/python/workspace/sentiment-analyzer:/media/python/workspace/sentiment-analyzer/analyzer:/media/python/workspace/pl241-mcs
+export PYTHONPATH=$PYTHONPATH:/home/madhu/.local/lib/python2.6/site-packages/:/home/madhu/.local/lib/python2.7/site-packages/:/home/madhu/.local/lib/:/media/python/workspace/disco/lib:/media/python/workspace/pl241-mcs
 
 export LD_LIBRARY_PATH=/home/madhu/.local/lib/:/usr/local/lib/
 
@@ -194,6 +215,7 @@ function parse_git_branch {
 
 #export PS1='\[\e[1;32m\]\w\[\e[0m\]$(__git_ps1 " (\[\e[0;32m\]%s\[\e[0m\]\[\e[1;33m\]$(parse_git_dirty)\[\e[0m\])")\[\e[0;32m\]$\[\e[0m\] '
 
+source $HOME/.git-prompt
 source $HOME/.kpumukprompt
 
 export DEBFULLNAME="Madhusudan C.S."
@@ -201,3 +223,4 @@ export DEBEMAIL="madhusudancs@gmail.com"
 
 # Core file limit
 ulimit -c 750000
+
