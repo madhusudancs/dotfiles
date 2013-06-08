@@ -3,7 +3,10 @@
 # for examples
 
 # If not running interactively, don't do anything
-[ -z "$PS1" ] && return
+case $- in
+    *i*) ;;
+      *) return;;
+esac
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
@@ -15,18 +18,22 @@ shopt -s histappend
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=10000000000
 HISTFILESIZE=20000000000
-HISTTIMEFORMAT="%F %T"
+HISTTIMEFORMAT="%F %T "
 shopt -s cmdhist
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
 
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+#shopt -s globstar
+
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
 # set variable identifying the chroot you work in (used in the prompt below)
-if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
@@ -188,7 +195,12 @@ export GOROOT=$HOME/go
 export CGO_CFLAGS="`llvm-config --cflags`"
 export CGO_LDFLAGS="`llvm-config --ldflags` -W1,L`llvm-config --libdir` -lLLVM-`llvm-config --version`"
 
-export PATH=$HOME/.local/bin:/var/lib/gems/1.9.1/bin:$HOME/installs/node/bin:/media/python/workspace/pl241-mcs:/media/python/yComp-1.3.16:$GOROOT/bin:/home/madhu/akmaxsat_1.1:$HOME/.rvm/bin:/media/python/llvmbuild/Debug+Asserts/bin:$PATH
+export MANAGIX_HOME=/media/python/asterix-workspace/asterix-installation
+export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-amd64
+export M2_HOME=$HOME/apache-maven-3.0.5
+export M2=$M2_HOME/bin
+
+export PATH=$HOME/.local/bin:/var/lib/gems/1.9.1/bin:$HOME/installs/node/bin:/media/python/workspace/pl241-mcs:/media/python/yComp-1.3.16:$GOROOT/bin:/home/madhu/akmaxsat_1.1:$HOME/.rvm/bin:/media/python/llvmbuild/Debug+Asserts/bin:/media/python/workspace/git-cl:$M2:$MANAGIX_HOME/bin:$PATH
 
 export EDITOR=vim
 
@@ -224,3 +236,6 @@ export DEBEMAIL="madhusudancs@gmail.com"
 # Core file limit
 ulimit -c 750000
 
+export LD_PRELOAD=/usr/lib/libpurple.so.0
+
+export JAVA_OPTS='-Xmx4096m'
