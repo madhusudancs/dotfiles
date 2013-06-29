@@ -115,8 +115,6 @@ if ! shopt -oq posix; then
   fi
 fi
 
-eval `dircolors $HOME/ls-colors-solarized/dircolors`
-
 function work {
   cd /media/python/iitb/workshops/
 }
@@ -192,19 +190,18 @@ function bast {
 }
 
 export GOROOT=$HOME/go
-export CGO_CFLAGS="`llvm-config --cflags`"
-export CGO_LDFLAGS="`llvm-config --ldflags` -W1,L`llvm-config --libdir` -lLLVM-`llvm-config --version`"
+export GOPATH=$HOME/.local/golib
 
 export MANAGIX_HOME=/media/python/asterix-workspace/asterix-installation
 export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-amd64
 export M2_HOME=$HOME/apache-maven-3.0.5
 export M2=$M2_HOME/bin
 
-export PATH=$HOME/.local/bin:/var/lib/gems/1.9.1/bin:$HOME/installs/node/bin:/media/python/workspace/pl241-mcs:/media/python/yComp-1.3.16:$GOROOT/bin:/home/madhu/akmaxsat_1.1:$HOME/.rvm/bin:/media/python/llvmbuild/Debug+Asserts/bin:/media/python/workspace/git-cl:$M2:$MANAGIX_HOME/bin:$PATH
+export PATH=$HOME/.local/bin:$GOROOT/bin:$GOPATH/bin:/media/python/workspace/git-cl:$M2:$MANAGIX_HOME/bin:$PATH
 
 export EDITOR=vim
 
-export PYTHONPATH=$PYTHONPATH:/home/madhu/.local/lib/python2.6/site-packages/:/home/madhu/.local/lib/python2.7/site-packages/:/home/madhu/.local/lib/:/media/python/workspace/disco/lib:/media/python/workspace/pl241-mcs
+export PYTHONPATH=$PYTHONPATH:/home/madhu/.local/lib/python2.7/site-packages/:/home/madhu/.local/lib/:/media/python/workspace/disco/lib:/media/python/workspace/pl241-mcs
 
 export LD_LIBRARY_PATH=/home/madhu/.local/lib/:/usr/local/lib/
 
@@ -227,8 +224,8 @@ function parse_git_branch {
 
 #export PS1='\[\e[1;32m\]\w\[\e[0m\]$(__git_ps1 " (\[\e[0;32m\]%s\[\e[0m\]\[\e[1;33m\]$(parse_git_dirty)\[\e[0m\])")\[\e[0;32m\]$\[\e[0m\] '
 
-source $HOME/.git-prompt
-source $HOME/.kpumukprompt
+source $HOME/.local/git-prompt.sh
+source $HOME/.local/kpumukprompt
 
 export DEBFULLNAME="Madhusudan C.S."
 export DEBEMAIL="madhusudancs@gmail.com"
