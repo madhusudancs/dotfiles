@@ -115,28 +115,8 @@ if ! shopt -oq posix; then
   fi
 fi
 
-function work {
-  cd /media/python/iitb/workshops/
-}
-
-function hs {
-  cd /media/professional/profiles-resumes-docs/higher_studies/
-}
-
 function mel {
   cd /media/python/workspace/melange/
-}
-
-function mpy {
-  cd /media/python
-}
-
-function wos {
-  cd /media/python/workspace/
-}
-
-function sshos {
-  ssh madhusudancs@88.198.40.10
 }
 
 function sermel {
@@ -145,11 +125,7 @@ function sermel {
   if [ -n $1 ]; then
     command=$command$1
   fi
-  `$command ./thirdparty/google_appengine/dev_appserver.py --use_sqlite --datastore_path=/media/python/melangedatafiles/devdata.sqlite --blobstore_path=/media/python/dev_appserver.blobstore --port=8000 --enable_sendmail --show_mail_body --allow_skipped_files --skip_sdk_update_check --default_partition "" --high_replication build`
-}
-
-function e {
-  gvim
+  ./thirdparty/google_appengine/dev_appserver.py --datastore_path=/media/python/melangedatafiles/devdata.sqlite --blobstore_path=/media/python/dev_appserver.blobstore --enable_sendmail --show_mail_body --allow_skipped_files --skip_sdk_update_check yes build
 }
 
 function nme {
@@ -163,56 +139,16 @@ function nme {
   return $old_status;
 }
 
-function g {
-  git $@;
-}
-
-function hyd {
-  export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
-  export PATH=$PATH:/media/python/workspace/hyracks-read-only/hyracks/hyracks-server/target/hyracks-server-0.1.9-SNAPSHOT-binary-assembly/bin:/media/python/workspace/hyracks-read-only/hyracks/hyracks-cli/target/hyracks-cli-0.1.9-SNAPSHOT-binary-assembly/bin;
-  export JAVA_OPTS="-Xmx1024m";
-}
-
-function bhyr {
-  cd /media/python/hyracks-git
-  mvn package install -DskipTests=true
-}
-
-function bast {
-  cd /media/python/asterixdb-megamerge-git/asterix-dist/target/asterix-dist-0.0.4-SNAPSHOT-binary-assembly
-  ./stopasterix.sh
-  bhyr
-  cd /media/python/asterixdb-megamerge-git
-  mvn package -DskipTests=true
-  cd /media/python/asterixdb-megamerge-git/asterix-dist/target/asterix-dist-0.0.4-SNAPSHOT-binary-assembly
-  ./startasterix.sh 2
-  cd /media/python/asterixdb-megamerge-git
-}
-
 export GOROOT=$HOME/go
 export GOPATH=$HOME/.local/golib
 
-export MANAGIX_HOME=/media/python/asterix-workspace/asterix-installation
-export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-amd64
-export M2_HOME=$HOME/apache-maven-3.0.5
-export M2=$M2_HOME/bin
-
-export PATH=$HOME/.local/bin:$GOROOT/bin:$GOPATH/bin:/media/python/workspace/git-cl:$M2:$MANAGIX_HOME/bin:$PATH
+export PATH=$HOME/.local/bin:$GOROOT/bin:$GOPATH/bin:$PATH
 
 export EDITOR=vim
 
-export PYTHONPATH=$PYTHONPATH:/home/madhu/.local/lib/python2.7/site-packages/:/home/madhu/.local/lib/:/media/python/workspace/disco/lib:/media/python/workspace/pl241-mcs
+export PYTHONPATH=$HOME/.local/lib/python2.7/site-packages/
 
 export LD_LIBRARY_PATH=/home/madhu/.local/lib/:/usr/local/lib/
-
-export YCOMP=/media/python/yComp-1.3.16/
-
-export jsmath_path=/usr/share/jsmath
-
-# Ruby Vitual Machine
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
-[[ -r $rvm_path/scripts/completion ]] && . $rvm_path/scripts/completion
-
 
 function parse_git_dirty {
   [[ $(git status 2> /dev/null | tail -n1) != "nothing to commit (working directory clean)" ]] && echo " *"
@@ -233,6 +169,3 @@ export DEBEMAIL="madhusudancs@gmail.com"
 # Core file limit
 ulimit -c 750000
 
-export LD_PRELOAD=/usr/lib/libpurple.so.0
-
-export JAVA_OPTS='-Xmx4096m'
