@@ -27,3 +27,7 @@
 	sh = !git show -p HEAD
 	l = log
 	svn-diff = !git-svn-diff
+[http]
+	cookiefile = /home/madhu/.gitcookies
+[push]
+	default = simple
