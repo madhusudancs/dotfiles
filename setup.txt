@@ -1,21 +1,20 @@
 # TODO(madhusudancs): Convert this to a shell script.
 
-# Install Fish
+# Install Fish, Neovim
 sudo add-apt-repository ppa:fish-shell/nightly-master
-sudo apt-get install fish
+sudo apt-add-repository ppa:neovim-ppa/unstable
+sudo apt-get update
+sudo apt-get install fish neovim
 
 # Install Oh My Fish
 curl -L https://github.com/oh-my-fish/oh-my-fish/raw/master/bin/install | fish
 ln -s ~/dotfiles/omf .config/
 
-# Install Neovim
-sudo apt-add-repository ppa:neovim-ppa/unstable
-sudo apt-get update
-sudo apt-get neovim
+# Make Fish the default shell
+chsh -s /usr/local/bin/fish
 
 # Install pip
-wget https://bootstrap.pypa.io/get-pip.py
-python get-pip.py --user
+curl https://bootstrap.pypa.io/get-pip.py | python - --user
 
 # Install powerline
 pip install --user git+git://github.com/powerline/powerline
@@ -30,21 +29,15 @@ git clone https://github.com/Anthony25/gnome-terminal-colors-solarized.git
 sudo apt-get install dconf-cli
 ./install.sh
 
+# Note from GNOME terminal Solarized
 ## Not for reverting GNOME terminal theme from Solarized
-This script will ask you which color scheme you want, and which Gnome Terminal profile to overwrite.
+# This script will ask you which color scheme you want, and which Gnome Terminal profile to overwrite.
 
-Please note that there is no uninstall option yet. If you do not wish to overwrite any of your profiles, you should create a new profile before you run this script. However, you can reset your colors to the Gnome default, by running:
+# Please note that there is no uninstall option yet. If you do not wish to overwrite any of your profiles, you should create a new profile before you run this script. However, you can reset your colors to the Gnome default, by running:
 
-    Gnome >= 3.8 dconf reset -f /org/gnome/terminal/legacy/profiles:/
-    Gnome < 3.8 gconftool-2 --recursive-unset /apps/gnome-terminal
-
+#    Gnome >= 3.8 dconf reset -f /org/gnome/terminal/legacy/profiles:/
+#    Gnome < 3.8 gconftool-2 --recursive-unset /apps/gnome-terminal
 
 
 # Install solarized dircolors
-mkdir .dircolors
-cd .dircolors
-wget https://raw.githubusercontent.com/seebi/dircolors-solarized/master/dircolors.ansi-dark
-cd ~
-
-# Install Terminology
-sudo apt-get install terminology
+wget https://raw.githubusercontent.com/seebi/dircolors-solarized/master/dircolors.ansi-dark -P $HOME/.dircolors
