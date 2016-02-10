@@ -1,0 +1,4 @@
+# Inspired by - https://news.ycombinator.com/item?id=11068902, https://github.com/jbranchaud/til and https://til.hashrocket.com
+09-02-2016	git	Checkout a pull request		https://til.hashrocket.com/posts/4eaefd872a-checkout-a-pull-request and https://gist.github.com/piscisaureus/3342247
+09-02-2016	git	Caching git credentials		https://til.hashrocket.com/posts/c76676df07-caching-credentials	
+09-02-2016	git	GNOME Keyring for passwords	https://marklodato.github.io/2013/10/25/github-two-factor-and-gnome-keyring.html
