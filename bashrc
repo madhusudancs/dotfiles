@@ -140,9 +140,11 @@ function nme {
 }
 
 export GOROOT=$HOME/go
-export GOPATH=$HOME/.local/golib
+export GOPATH=$HOME/godev
 
-export PATH=$HOME/.local/bin:$GOROOT/bin:$GOPATH/bin:$PATH
+export GIT_GNOME_KEYRING_PATH="/usr/share/doc/git/contrib/credential/gnome-keyring"
+
+export PATH=$GIT_GNOME_KEYRING_PATH:$HOME/.local/bin:$GOROOT/bin:$GOPATH/bin:$PATH
 
 export EDITOR=vim
 
