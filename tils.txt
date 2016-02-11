@@ -2,3 +2,4 @@
 09-02-2016	git	Checkout a pull request		https://til.hashrocket.com/posts/4eaefd872a-checkout-a-pull-request and https://gist.github.com/piscisaureus/3342247
 09-02-2016	git	Caching git credentials		https://til.hashrocket.com/posts/c76676df07-caching-credentials	
 09-02-2016	git	GNOME Keyring for passwords	https://marklodato.github.io/2013/10/25/github-two-factor-and-gnome-keyring.html
+10-02-2016	git,gnome-keyring,gnome,dbus,ssh	Enabling git credentials over ssh	Start a new dbus session with dbus-launch (figure out how to reuse the existing dbus instances and/or exit with session). Export the DBUS_SESSION_ADDRESS variables returned by dbus-launch. Run this Python code to unlock the keyring - import gnomekeyring; import getpass; gnomekeyring.unlock_sync(None, getpass.getpass('Password: ')); See http://askubuntu.com/questions/18927/how-to-enter-the-default-keyring-password-via-the-command-line
