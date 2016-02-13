@@ -1,5 +1,9 @@
 # Inspired by - https://news.ycombinator.com/item?id=11068902, https://github.com/jbranchaud/til and https://til.hashrocket.com
 09-02-2016	git	Checkout a pull request		https://til.hashrocket.com/posts/4eaefd872a-checkout-a-pull-request and https://gist.github.com/piscisaureus/3342247
 09-02-2016	git	Caching git credentials		https://til.hashrocket.com/posts/c76676df07-caching-credentials	
-09-02-2016	git	GNOME Keyring for passwords	https://marklodato.github.io/2013/10/25/github-two-factor-and-gnome-keyring.html
+09-02-2016	git,gnome-keyring,gnome	GNOME Keyring for passwords	https://marklodato.github.io/2013/10/25/github-two-factor-and-gnome-keyring.html
 10-02-2016	git,gnome-keyring,gnome,dbus,ssh	Enabling git credentials over ssh	Start a new dbus session with dbus-launch (figure out how to reuse the existing dbus instances and/or exit with session). Export the DBUS_SESSION_ADDRESS variables returned by dbus-launch. Run this Python code to unlock the keyring - import gnomekeyring; import getpass; gnomekeyring.unlock_sync(None, getpass.getpass('Password: ')); See http://askubuntu.com/questions/18927/how-to-enter-the-default-keyring-password-via-the-command-line
+11-02-2016	PAM,gnome-keyring,gnome,dbus,ssh  gnome-keyring PAM modules unlock gnome-keyring on login	https://wiki.gnome.org/Projects/GnomeKeyring/Pam, https://wiki.archlinux.org/index.php/GNOME_Keyring
+11-02-2016	dbus 	dbus-run-session command that launches a dbus-daemon, runs the specified program in that session and kills the daemon once the program terminates.	https://dbus.freedesktop.org/doc/dbus-run-session.1.html
+12-02-2016	bash,logout,shell	There is a bash logout script ~/.bash_logout, like the ~/.bashrc script that's executed when a shell is started.
+12-02-2016	bash,login shell	To check if you are in an interactive shell: [[ $- == *i* ]] && echo 'Interactive' || echo 'Not interactive', To check if you are in a login shell: shopt -q login_shell && echo 'Login shell' || echo 'Not login shell'	http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
