@@ -1,0 +1,13 @@
+{
+	// you may set specific environment variables here
+	// e.g "env": { "PATH": "$HOME/go/bin:$PATH" }
+	// in values, $PATH and ${PATH} are replaced with
+	// the corresponding environment(PATH) variable, if it exists.
+	"env": {
+		"GOROOT": "${HOME}/go/go1.6",
+		"GOPATH": "${HOME}/godev",
+		"PATH": "${GOROOT}/bin:$PATH",
+	},
+
+	"fmt_cmd": ["goimports"],
+}
