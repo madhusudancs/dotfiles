@@ -148,10 +148,6 @@ export PATH=$GIT_GNOME_KEYRING_PATH:$HOME/.local/bin:$GOROOT/bin:$GOPATH/bin:$PA
 
 export EDITOR=vim
 
-export PYTHONPATH=$HOME/.local/lib/python2.7/site-packages/
-
-export LD_LIBRARY_PATH=/home/madhu/.local/lib/:/usr/local/lib/
-
 function parse_git_dirty {
   [[ $(git status 2> /dev/null | tail -n1) != "nothing to commit (working directory clean)" ]] && echo " *"
 }
@@ -159,8 +155,6 @@ function parse_git_dirty {
 function parse_git_branch {
   git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/[\1$(parse_git_dirty)]/"
 }
-
-#export PS1='\[\e[1;32m\]\w\[\e[0m\]$(__git_ps1 " (\[\e[0;32m\]%s\[\e[0m\]\[\e[1;33m\]$(parse_git_dirty)\[\e[0m\])")\[\e[0;32m\]$\[\e[0m\] '
 
 source $HOME/.local/git-prompt.sh
 source $HOME/.local/kpumukprompt
