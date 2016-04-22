@@ -7,19 +7,18 @@
 	diff = auto
 	status = auto
 [color "branch"]
-        current = yellow reverse
-        local = yellow
-        remote = green
+	current = yellow reverse
+	local = yellow
+	remote = green
 [color "diff"]
-        meta = yellow bold
-        frag = magenta bold
-        old = red bold
-        new = green bold
+	meta = yellow bold
+	frag = magenta bold
+	old = red bold
+	new = green bold
 [color "status"]
-        added = yellow
-        changed = green
-        untracked = cyan
-
+	added = yellow
+	changed = green
+	untracked = cyan
 [alias]
 	fw = !git commit -qam 'fix whitespace' && git rebase -q --whitespace=fix HEAD~ && git reset -q HEAD~ 
 	ap = !git add -p
@@ -31,3 +30,5 @@
 	cookiefile = /home/madhu/.gitcookies
 [push]
 	default = simple
+[credential]
+	helper = gnome-keyring
