@@ -1,0 +1,49 @@
+[user]
+name = "Madhu C.S."
+email = "madhusudancs@gmail.com"
+
+[signing]
+backend = "ssh"
+key = "/home/madhu/.ssh/commit-signing-key.pub"
+behavior = "force"
+
+[signing.backends.ssh]
+allowed-signers = "~/.ssh/allowed_signers"
+
+[git]
+# push-bookmark-prefix = "feat/"
+sign-on-push = true # Lazy signing only on pushes
+
+[remotes.origin]
+auto-track-bookmarks = "*"
+
+[templates]
+git_push_bookmark = '"madhu/" ++ change_id.short()'
+
+[template-aliases]
+'format_short_signature(signature)' = 'signature' # Name and email
+
+[ui]
+bookmark-list-sort-keys = ["committer-date"]
+conflict-marker-style = "snapshot"
+default-command = ["log", "--no-pager", "-n=5"]
+editor = "zed -w"
+graph.style = "curved"
+wrapping = "word"
+log-word-wrap = true
+movement.edit = true # Useful if using `prev` and `next` and want to edit the parent directly
+diff-formatter = ":git"
+paginate="auto"
+show-cryptographic-signatures = true
+
+[ui.streampager]
+interface = "quit-if-one-page"
+
+[[--scope]]
+--when.commands = ["diff", "show", "interdiff", "obslog"]
+[--scope.ui]
+pager = "diffnav"
+
+# MARK: - Aliases
+[aliases]
+tip = ["edit", "-r", "latest(heads(mutable()))"]
