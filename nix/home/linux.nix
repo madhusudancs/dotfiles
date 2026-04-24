@@ -68,21 +68,27 @@
       '';
     })
 
-    # Google Chrome: nixGL for GPU drivers + --no-sandbox on non-NixOS.
+    # Zed: nixGL for GPU drivers on non-NixOS. Desktop file uses bare `zeditor`
+    # command name so we patch Exec= and TryExec= to the absolute wrapper path.
+    # Also provides a `zed` alias (used by EDITOR and jj).
     # Requires: home-manager switch --impure  (nixGL probes system hardware)
     (pkgs.symlinkJoin {
-      name = "google-chrome";
-      paths = [ pkgs.google-chrome ];
+      name = "zed-nixgl";
+      paths = [ pkgs.zed-editor ];
       buildInputs = [ pkgs.makeWrapper ];
       postBuild = ''
-        rm $out/bin/google-chrome-stable
-        makeWrapper ${pkgs.nixgl.auto.nixGLDefault}/bin/nixGL $out/bin/google-chrome-stable \
-          --add-flags "${pkgs.google-chrome}/bin/google-chrome-stable --no-sandbox"
+        rm $out/bin/zeditor
+        makeWrapper ${pkgs.nixgl.auto.nixGLDefault}/bin/nixGL $out/bin/zeditor \
+          --add-flags "${pkgs.zed-editor}/bin/zeditor"
+        makeWrapper ${pkgs.nixgl.auto.nixGLDefault}/bin/nixGL $out/bin/zed \
+          --add-flags "${pkgs.zed-editor}/bin/zeditor"
         cp --remove-destination \
-          "$(readlink -f "$out/share/applications/google-chrome.desktop")" \
-          "$out/share/applications/google-chrome.desktop"
-        sed -i "s|${pkgs.google-chrome}/bin/google-chrome-stable|$out/bin/google-chrome-stable|g" \
-          "$out/share/applications/google-chrome.desktop"
+          "$(readlink -f "$out/share/applications/dev.zed.Zed.desktop")" \
+          "$out/share/applications/dev.zed.Zed.desktop"
+        sed -i "s|Exec=zeditor|Exec=$out/bin/zeditor|g" \
+          "$out/share/applications/dev.zed.Zed.desktop"
+        sed -i "s|TryExec=zeditor|TryExec=$out/bin/zeditor|g" \
+          "$out/share/applications/dev.zed.Zed.desktop"
       '';
     })
   ];

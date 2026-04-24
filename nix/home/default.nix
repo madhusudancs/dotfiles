@@ -15,11 +15,8 @@
 
     # Editors
     helix
-    zed-editor
     nil              # Nix language server (used by Zed, Helix, etc.)
-    # zed-editor installs as `zeditor`; this wrapper provides the `zed` name
-    # used throughout configs (EDITOR, jj, etc.)
-    (pkgs.writeShellScriptBin "zed" ''exec ${pkgs.zed-editor}/bin/zeditor "$@"'')
+    # zed-editor is added per-platform: linux.nix (nixGL-wrapped) / darwin.nix
 
     # Terminal multiplexer
     zellij
@@ -338,6 +335,77 @@
     font-family = 0xProto Nerd Font Mono
     font-family = Symbols Nerd Font
     font-family = Noto Sans Symbols2
+  '';
+
+  # ── Zed ───────────────────────────────────────────────────────────────────
+
+  home.file.".config/zed/settings.json".text = ''
+    // Zed settings
+    //
+    // For information on how to configure Zed, see the Zed
+    // documentation: https://zed.dev/docs/configuring-zed
+    //
+    // To see all of Zed's default settings without changing your
+    // custom settings, run `zed: open default settings` from the
+    // command palette (cmd-shift-p / ctrl-shift-p)
+    {
+      "terminal": {
+        "font_family": "0xProto Nerd Font Mono"
+      },
+      "context_servers": {
+        "serena-context-server": {
+          "enabled": true,
+          "remote": false,
+          "settings": {
+            "python_executable": null,
+          },
+        },
+      },
+      "agent_buffer_font_size": 18.0,
+      "agent_ui_font_size": 18.0,
+      "ui_font_family": ".ZedSans",
+      "icon_theme": "Zed (Default)",
+      "project_panel": {
+        "dock": "left",
+      },
+      "outline_panel": {
+        "dock": "left",
+      },
+      "collaboration_panel": {
+        "dock": "left",
+      },
+      "git_panel": {
+        "dock": "left",
+      },
+      "agent": {
+        "tool_permissions": {
+          "tools": {
+            "search_web": {
+              "default": "allow",
+            },
+          },
+        },
+        "dock": "right",
+        "sidebar_side": "right",
+        "default_model": {
+          "effort": "high",
+          "enable_thinking": true,
+          "provider": "zed.dev",
+          "model": "claude-sonnet-4-6",
+        },
+      },
+      "telemetry": {
+        "metrics": false,
+        "diagnostics": false,
+      },
+      "ui_font_size": 18,
+      "buffer_font_size": 18,
+      "theme": {
+        "mode": "system",
+        "light": "Oolong",
+        "dark": "Oolong",
+      },
+    }
   '';
 
   # ── Bootstrap activation scripts ──────────────────────────────────────────

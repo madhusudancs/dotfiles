@@ -21,7 +21,7 @@
         inherit system;
         overlays = overlays;
         config.allowUnfreePredicate = pkg:
-          builtins.elem (nixpkgs.lib.getName pkg) [ "claude-code" "bitwarden-desktop" "google-chrome" ];
+          builtins.elem (nixpkgs.lib.getName pkg) [ "claude-code" "bitwarden-desktop" ];
       };
 
       mkHome = system: overlays: extraModules:
