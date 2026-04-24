@@ -253,6 +253,21 @@
     la = ["log", "-r", "all()", "--limit", "60"]
   '';
 
+  # ── Claude Code ───────────────────────────────────────────────────────────
+
+  home.file.".claude/CLAUDE.md".text = ''
+    # User Instructions
+
+    ## Version Control
+    - MUST use `jj` (Jujutsu) for all VCS operations. Never use `git` commands directly.
+
+    ## Regex Search
+    - MUST use `rg` (ripgrep) for searching file contents. Never use `grep` directly.
+
+    ## File Search
+    - MUST use `fd` for finding files. Never use `find` directly.
+  '';
+
   # ── Ghostty ───────────────────────────────────────────────────────────────
 
   home.file.".config/ghostty/config".text = ''
