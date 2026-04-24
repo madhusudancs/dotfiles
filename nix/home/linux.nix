@@ -53,6 +53,18 @@
           "$out/share/applications/com.mitchellh.ghostty.desktop"
         sed -i "s|${pkgs.ghostty}/bin/ghostty|$out/bin/ghostty|g" \
           "$out/share/applications/com.mitchellh.ghostty.desktop"
+        cp --remove-destination \
+          "$(readlink -f "$out/share/dbus-1/services/com.mitchellh.ghostty.service")" \
+          "$out/share/dbus-1/services/com.mitchellh.ghostty.service"
+        sed -i "s|${pkgs.ghostty}/bin/ghostty|$out/bin/ghostty|g" \
+          "$out/share/dbus-1/services/com.mitchellh.ghostty.service"
+        sed -i '/^SystemdService=/d' \
+          "$out/share/dbus-1/services/com.mitchellh.ghostty.service"
+        cp --remove-destination \
+          "$(readlink -f "$out/share/systemd/user/app-com.mitchellh.ghostty.service")" \
+          "$out/share/systemd/user/app-com.mitchellh.ghostty.service"
+        sed -i "s|${pkgs.ghostty}/bin/ghostty|$out/bin/ghostty|g" \
+          "$out/share/systemd/user/app-com.mitchellh.ghostty.service"
       '';
     })
 
@@ -74,6 +86,29 @@
       '';
     })
   ];
+
+  # Reload the session DBus daemon so it picks up new/changed service files
+  # in ~/.nix-profile/share/dbus-1/services/ after every home-manager switch.
+  home.activation.reloadDbus = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [ -n "$DBUS_SESSION_BUS_ADDRESS" ]; then
+      $DRY_RUN_CMD ${pkgs.dbus}/bin/dbus-send --session \
+        --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig || true
+    fi
+  '';
+
+  # GNOME keyboard shortcut: Ctrl+Alt+T → Ghostty
+  dconf.settings = {
+    "org/gnome/settings-daemon/plugins/media-keys" = {
+      custom-keybindings = [
+        "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
+      ];
+    };
+    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
+      binding = "<Primary><Alt>g";
+      command = "${config.home.homeDirectory}/.nix-profile/bin/ghostty";
+      name = "Launch Ghostty";
+    };
+  };
 
   # ── Login shell ───────────────────────────────────────────────────────────
 

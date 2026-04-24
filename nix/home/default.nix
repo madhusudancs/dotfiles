@@ -164,7 +164,7 @@
     enableZshIntegration = true;
     settings = {
       add_newline = true;
-      character.success_symbol = "[➜](bold green)";
+      character.success_symbol = "[➜ ](bold green)";
       package.disabled = true;
       # Disable all git modules (using jj instead)
       git_branch.disabled = true;
