@@ -252,6 +252,11 @@
 
   # ── Claude Code ───────────────────────────────────────────────────────────
 
+  # Starship-claude statusline config (powerline + Catppuccin Mocha + jj-starship).
+  # Source file lives in claude-code/starship.toml; kept separate to preserve
+  # nerd-font characters that can't be reliably embedded in Nix strings.
+  home.file.".claude/starship.toml".source = ../../claude-code/starship.toml;
+
   home.file.".claude/CLAUDE.md".text = ''
     # User Instructions
 
@@ -457,6 +462,63 @@
           $DRY_RUN_CMD mkdir -p "$HOME/.claude/skills/jj-vcs"
           $DRY_RUN_CMD cp -r "$_tmpdir/skill/." "$HOME/.claude/skills/jj-vcs/"
         fi
+      fi
+    '';
+
+    # Copy the starship-claude binary from the plugin cache to ~/.local/bin so
+    # the statusLine command is available without relying on the cache path.
+    # Runs after installStarshipClaude so the cache is populated first.
+    installStarshipClaudeBinary = lib.hm.dag.entryAfter [ "writeBoundary" "installStarshipClaude" ] ''
+      _bin=$(ls "${config.home.homeDirectory}/.claude/plugins/cache/starship-claude/starship-claude/"*/bin/starship-claude 2>/dev/null | head -1)
+      if [ -n "$_bin" ] && [ -f "$_bin" ]; then
+        $DRY_RUN_CMD mkdir -p "${config.home.homeDirectory}/.local/bin"
+        $DRY_RUN_CMD cp "$_bin" "${config.home.homeDirectory}/.local/bin/starship-claude"
+        $DRY_RUN_CMD chmod +x "${config.home.homeDirectory}/.local/bin/starship-claude"
+      fi
+    '';
+
+    # Write ~/.claude/settings.json from Nix-managed values.
+    # Runs after plugin activations (which may also write to settings.json) so
+    # this is always the final authoritative write.
+    # Permissions (allow/deny/ask) are runtime state — preserved from whatever
+    # Claude Code has written; everything else is overwritten from Nix.
+    claudeSettings = lib.hm.dag.entryAfter [
+      "writeBoundary"
+      "installStarshipClaude"
+      "installGhosttyNotifications"
+    ] ''
+      _settings="${config.home.homeDirectory}/.claude/settings.json"
+      _base='${builtins.toJSON {
+        statusLine = {
+          type    = "command";
+          padding = 0;
+          command = "~/.local/bin/starship-claude";
+        };
+        enabledPlugins = {
+          "starship-claude@starship-claude"                = true;
+          "ghostty-notifications@recursechat-agent-workflow" = true;
+        };
+        extraKnownMarketplaces = {
+          "starship-claude" = {
+            source = {
+              source = "git";
+              url    = "https://github.com/martinemde/starship-claude.git";
+            };
+          };
+          "recursechat-agent-workflow" = {
+            source = {
+              source = "git";
+              url    = "https://github.com/recursechat/agent-workflow.git";
+            };
+          };
+        };
+      }}'
+      if [ -z "$DRY_RUN_CMD" ]; then
+        _perms=$(${pkgs.jq}/bin/jq -c 'if has("permissions") then {permissions:.permissions} else {} end' \
+          "$_settings" 2>/dev/null || echo '{}')
+        echo "$_base" \
+          | ${pkgs.jq}/bin/jq --argjson p "$_perms" '. + $p' \
+          > "$_settings.tmp" && mv "$_settings.tmp" "$_settings"
       fi
     '';
   };

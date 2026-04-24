@@ -10,8 +10,7 @@ format = """
 [](bg:directory_bg fg:claude_bg)\
 $directory\
 [](fg:directory_bg bg:git_bg)\
-$git_branch\
-$git_status\
+${custom.jj}\
 [](fg:git_bg bg:model_bg)\
 ${env_var.CLAUDE_MODEL_NERD}\
 [](fg:model_bg bg:context_bg)\
@@ -28,13 +27,16 @@ truncation_length = 2
 truncate_to_repo = true
 
 [git_branch]
-symbol = ""
-style = "bg:git_bg fg:git_branch"
-format = "[ $symbol $branch]($style)"
+disabled = true
 
 [git_status]
-style = "bg:git_bg fg:git_status"
-format = "[($all_status$ahead_behind)]($style)"
+disabled = true
+
+[custom.jj]
+when = "/home/madhu/.nix-profile/bin/jj-starship detect"
+shell = ["/home/madhu/.nix-profile/bin/jj-starship", "--no-color", "--no-jj-prefix", "--no-git-prefix"]
+style = "bg:git_bg fg:git_branch"
+format = "[ $output ]($style)"
 
 [env_var.CLAUDE_MODEL_NERD]
 variable = "CLAUDE_MODEL_NERD"
@@ -54,23 +56,25 @@ style = "bg:cost_bg fg:cost"
 ## Custom palette
 #
 
-# Gruvbox Dark
+# Catppuccin Mocha
 [palettes.custom]
+
+# Semantic colors for templates
 claude = "#D97757"
-claude_bg = "#282828"
+claude_bg = "#313244"
 
-directory = "#83a598"
-directory_bg = "#282828"
+directory = "#89dceb"
+directory_bg = "#1e1e2e"
 
-git_branch = "#b16286"
-git_status = "#d3869b"
-git_bg = "#3c3836"
+git_branch = "#eba0ac"
+git_status = "#f2cdcd"
+git_bg = "#313244"
 
-model = "#458588"
-model_bg = "#282828"
+model = "#b4befe"
+model_bg = "#1e1e2e"
 
-context = "#d79921"
-context_bg = "#3c3836"
+context = "#fab387"
+context_bg = "#313244"
 
-cost = "#689d6a"
-cost_bg = "#504945"
+cost = "#a6e3a1"
+cost_bg = "#45475a"
