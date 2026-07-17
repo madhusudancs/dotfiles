@@ -127,6 +127,9 @@
     };
     shellAliases = {
       cat = "bat";
+      asso = "aws sso login --sso-session resolve";
+      ecrl = "aws ecr get-login-password --profile=resolve-tools --region us-east-2 | docker login --username AWS --password-stdin 851725284763.dkr.ecr.us-east-2.amazonaws.com";
+      pecrl = "aws ecr-public get-login-password --profile=resolve-tools --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws";
     };
     sessionVariables = {
       MANPAGER = "bat -plman";
@@ -297,6 +300,7 @@
     quick-terminal-size = 75%,75%
     scrollback-limit = 1000000000
     shell-integration = zsh
+    command = /home/madhu/.nix-profile/bin/zsh
     split-divider-color = #666666
     split-inherit-working-directory = true
     tab-inherit-working-directory = true
@@ -336,7 +340,7 @@
     palette = 13=#d26349
     palette = 14=#e6a96b
     palette = 15=#ffeaa3
-    font-size = 16
+    font-size = 12
     font-family = 0xProto Nerd Font Mono
     font-family = Symbols Nerd Font
     font-family = Noto Sans Symbols2
@@ -469,7 +473,7 @@
     # the statusLine command is available without relying on the cache path.
     # Runs after installStarshipClaude so the cache is populated first.
     installStarshipClaudeBinary = lib.hm.dag.entryAfter [ "writeBoundary" "installStarshipClaude" ] ''
-      _bin=$(ls "${config.home.homeDirectory}/.claude/plugins/cache/starship-claude/starship-claude/"*/bin/starship-claude 2>/dev/null | head -1)
+      _bin=$(ls "${config.home.homeDirectory}/.claude/plugins/cache/starship-claude/starship-claude/"*/bin/starship-claude 2>/dev/null | head -1 || true)
       if [ -n "$_bin" ] && [ -f "$_bin" ]; then
         $DRY_RUN_CMD mkdir -p "${config.home.homeDirectory}/.local/bin"
         $DRY_RUN_CMD cp "$_bin" "${config.home.homeDirectory}/.local/bin/starship-claude"
