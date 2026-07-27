@@ -128,7 +128,6 @@
     shellAliases = {
       cat = "bat";
       asso = "aws sso login --sso-session resolve";
-      ecrl = "aws ecr get-login-password --profile=resolve-tools --region us-east-2 | docker login --username AWS --password-stdin 851725284763.dkr.ecr.us-east-2.amazonaws.com";
       pecrl = "aws ecr-public get-login-password --profile=resolve-tools --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws";
     };
     sessionVariables = {
@@ -147,8 +146,8 @@
       # pnpm
       export PNPM_HOME="$HOME/.local/share/pnpm"
       case ":$PATH:" in
-        *":$PNPM_HOME:"*) ;;
-        *) export PATH="$PNPM_HOME:$PATH" ;;
+        *":$PNPM_HOME/bin:"*) ;;
+        *) export PATH="$PNPM_HOME/bin:$PATH" ;;
       esac
 
       # Global bat help aliases
