@@ -24,6 +24,8 @@
     # Dev workflow
     tilt
     claude-code
+    nono         # nono CLI (nolabs-ai) — https://nono.sh/docs/cli
+    pi-coding-agent  # `pi` — https://pi.dev/
     zsh
 
     # Search & navigation
@@ -150,6 +152,12 @@
         *) export PATH="$PNPM_HOME/bin:$PATH" ;;
       esac
 
+      # bun
+      case ":$PATH:" in
+        *":$HOME/.bun/bin:"*) ;;
+        *) export PATH="$HOME/.bun/bin:$PATH" ;;
+      esac
+
       # Global bat help aliases
       alias -g -- -h='-h 2>&1 | bat --language=help --style=plain'
       alias -g -- --help='--help 2>&1 | bat --language=help --style=plain'
@@ -198,6 +206,9 @@
   };
 
   # ── Jujutsu ───────────────────────────────────────────────────────────────
+  # ui.editor below interpolates programs.zsh.sessionVariables.EDITOR rather
+  # than hardcoding an editor, so a host that overrides EDITOR (devbox.nix ->
+  # "hx", since zed is desktop-only) gets the same editor in jj automatically.
 
   home.file.".config/jj/config.toml".text = ''
     [user]
@@ -230,7 +241,7 @@
     bookmark-list-sort-keys = ["committer-date"]
     conflict-marker-style = "snapshot"
     default-command = ["log", "--no-pager", "-n=5"]
-    editor = "zed -w"
+    editor = "${config.programs.zsh.sessionVariables.EDITOR}"
     graph.style = "curved"
     wrapping = "word"
     log-word-wrap = true
@@ -271,6 +282,45 @@
     ## File Search
     - MUST use `fd` for finding files. Never use `find` directly.
   '';
+
+  # ── Pi ────────────────────────────────────────────────────────────────────
+  # pi coding agent (https://pi.dev/). Settings live in ~/.pi/agent/settings.json,
+  # which pi writes to itself (theme/model changes, lastChangelogVersion), so it
+  # is merged on activation rather than symlinked read-only from the store.
+  # See home.activation.piSettings below for the write.
+
+  # nono sandbox profile for running pi: `nono run --profile pi -- pi`.
+  # nono itself is installed out-of-band (`cargo install nono-cli`); only this
+  # profile is managed here. It extends the registry-managed nolabs-ai/pi pack,
+  # which is signed by .nono-trust.bundle and so must not be edited in place,
+  # and adds the three paths pi needs beyond it:
+  #   $TMPDIR/jiti                   jiti's TypeScript->mjs transpile cache. pi
+  #                                  extensions ship as raw .ts; jiti writes the
+  #                                  compiled .mjs then imports it back, so this
+  #                                  needs read+write. The pack grants /tmp
+  #                                  write-only, which fails the read-back and
+  #                                  kills every extension at load.
+  #   $TMPDIR/pi-subagents-uid-$UID  pi-subagents' file-based IPC tree. scandir'd
+  #                                  at session start to restore async runs.
+  #   $WORKDIR                       the project pi is launched in.
+  # Directory grants, not per-file: jiti cache filenames are content hashes, so
+  # a file-level allowlist goes stale on every pi/extension upgrade.
+  # NOTE: launching pi from $HOME fails by design - $WORKDIR would then overlap
+  # nono's protected state root ~/.local/state/nono. Launch from a project dir.
+  home.file.".config/nono/profiles/pi.json".text = builtins.toJSON {
+    extends = [ "nolabs-ai/pi" ];
+    meta = {
+      name = "pi";
+      version = "2.0.0";
+      description = "Local additions for pi: jiti transpile cache + pi-subagents IPC dirs";
+    };
+    filesystem.allow = [
+      "$TMPDIR/jiti"
+      "$TMPDIR/pi-subagents-uid-$UID"
+      "$WORKDIR"
+      "$HOME/.config/jj/repos"
+    ];
+  };
 
   # ── Ghostty ───────────────────────────────────────────────────────────────
 
@@ -477,6 +527,47 @@
         $DRY_RUN_CMD mkdir -p "${config.home.homeDirectory}/.local/bin"
         $DRY_RUN_CMD cp "$_bin" "${config.home.homeDirectory}/.local/bin/starship-claude"
         $DRY_RUN_CMD chmod +x "${config.home.homeDirectory}/.local/bin/starship-claude"
+      fi
+    '';
+
+    # Write ~/.pi/agent/settings.json from Nix-managed values.
+    # lastChangelogVersion is runtime state written by pi itself — preserved
+    # from the existing file; everything else is overwritten from Nix.
+    piSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      _piDir="${config.home.homeDirectory}/.pi/agent"
+      _piSettings="$_piDir/settings.json"
+      _piBase='${builtins.toJSON {
+        defaultProvider = "anthropic";
+        defaultModel = "claude-opus-5";
+        defaultThinkingLevel = "xhigh";
+        theme = "dark";
+        npmCommand = [ "pnpm" "--ignore-workspace" ];
+        enabledModels = [
+          "anthropic/claude-sonnet-5"
+          "anthropic/claude-opus-4-8"
+          "anthropic/claude-opus-5"
+          "openai-codex/gpt-5.6-sol"
+          "openai-codex/gpt-5.6-terra"
+          "openai-codex/gpt-5.6-luna"
+        ];
+        packages = [
+          "npm:pi-subagents"
+          "npm:pi-mcp-adapter"
+          "npm:pi-web-access"
+          "npm:@vigolium/piolium"
+          "npm:@plannotator/pi-extension"
+          "npm:remote-pi"
+          "npm:pi-hermes-memory"
+        ];
+      }}'
+      if [ -z "$DRY_RUN_CMD" ]; then
+        mkdir -p "$_piDir"
+        _piState=$(${pkgs.jq}/bin/jq -c \
+          'if has("lastChangelogVersion") then {lastChangelogVersion} else {} end' \
+          "$_piSettings" 2>/dev/null || echo '{}')
+        echo "$_piBase" \
+          | ${pkgs.jq}/bin/jq --argjson s "$_piState" '. + $s' \
+          > "$_piSettings.tmp" && mv "$_piSettings.tmp" "$_piSettings"
       fi
     '';
 

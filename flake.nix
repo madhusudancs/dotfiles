@@ -32,8 +32,12 @@
         };
     in {
       homeConfigurations = {
-        # Linux (x86_64) — most desktops/servers
-        "madhu-linux" = mkHome "x86_64-linux" [ nixgl.overlay ] [ ./nix/home/linux.nix ];
+        # Linux (x86_64) desktop — Linux base + the graphical layer
+        "madhu-linux" = mkHome "x86_64-linux" [ nixgl.overlay ]
+          [ ./nix/home/linux.nix ./nix/home/linux-desktop.nix ];
+        # Devbox — headless: Linux base only, no desktop layer
+        "madhu-devbox" = mkHome "x86_64-linux" [ nixgl.overlay ]
+          [ ./nix/home/linux.nix ./nix/home/devbox.nix ];
         # macOS Apple Silicon
         "madhu-darwin" = mkHome "aarch64-darwin" [] [ ./nix/home/darwin.nix ];
         # macOS Intel
