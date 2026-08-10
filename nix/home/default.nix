@@ -1,5 +1,16 @@
 { config, pkgs, lib, zig-overlay, system, ... }:
 
+let
+  # The two files jj's ssh signing backend reads (signing.key and
+  # signing.backends.ssh.allowed-signers below). Spelled with $HOME rather than
+  # config.home.homeDirectory because nono expands it at sandbox setup; the jj
+  # config itself keeps its own literal paths, since jj does no $HOME expansion.
+  sshSigningFiles = [
+    "$HOME/.ssh/commit-signing-key.pub"
+    "$HOME/.ssh/allowed_signers"
+  ];
+in
+
 {
   home.stateVersion = "24.11";
   programs.home-manager.enable = true;
@@ -320,6 +331,19 @@
       "$WORKDIR"
       "$HOME/.config/jj/repos"
     ];
+    # jj signs every commit it writes (signing.behavior = "force" above), so
+    # ssh-keygen must be able to read the *public* key -- and, because
+    # ui.show-cryptographic-signatures = true, allowed_signers to verify. Both
+    # live under ~/.ssh, which nono's `deny_credentials` group blocks wholesale;
+    # a plain filesystem.read grant loses to it, so these need
+    # bypass_protection as well. Without this every jj command that snapshots
+    # the working copy (`st`, `describe`, `new`, ...) dies with
+    # "SSH sign failed ... Couldn't load public key".
+    # Only .pub files are exposed. The private key is not on disk at all --
+    # signing goes through the forwarded ssh-agent socket, which the pack
+    # already lets through.
+    filesystem.read = sshSigningFiles;
+    filesystem.bypass_protection = sshSigningFiles;
   };
 
   # ── Ghostty ───────────────────────────────────────────────────────────────
