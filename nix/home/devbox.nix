@@ -41,7 +41,45 @@
     PLANNOTATOR_REMOTE = "1";
   };
 
-  # SSH_AUTH_SOCK is deliberately left unset: it is set only in
-  # linux-desktop.nix (pointing at the Bitwarden app's agent socket), which
-  # this host does not import. Devbox uses an agent forwarded over SSH.
+  # SSH_AUTH_SOCK: linux-desktop.nix pins it to the Bitwarden app's agent
+  # socket, but this host does not import that layer -- devbox uses an agent
+  # forwarded over SSH, so the value has to be discovered per login instead.
+  #
+  # Agent forwarding mints a fresh socket for each SSH login
+  # (/tmp/ssh-XXXXXX/agent.N) and tears it down when that login ends. tmux
+  # sessions outlive the login that started them, so every reconnect leaves
+  # their SSH_AUTH_SOCK pointing at a socket that no longer exists. With
+  # signing.behavior = "force" in the jj config, that surfaces as jj refusing to
+  # write *any* commit ("No private key found for public key ..."), which reads
+  # like a signing misconfiguration rather than a dead socket.
+  #
+  # tmux already tracks the current socket for us: SSH_AUTH_SOCK is in its
+  # update-environment list, so attaching a client refreshes the *session*
+  # environment. What it cannot do is reach into shells that are already
+  # running. So pull from the session environment at each prompt.
+  #
+  # The tempting alternative -- a stable symlink at a fixed path, re-aimed on
+  # login -- is a trap here. Sockets stay in /tmp either way, the pi nono pack
+  # grants /tmp write via group:system_write_linux, and connecting to a unix
+  # socket needs write. So any socket under /tmp is reachable from a sandbox
+  # that knows its path, and an explicit filesystem.deny cannot override it
+  # ("deny ... overlaps allowed parent '/tmp'"). The only thing keeping a
+  # sandboxed agent off the forwarded socket is that the path is unguessable
+  # (random per login) and /tmp is not listable in there. A fixed symlink
+  # trades that away for convenience; keeping the random path costs nothing.
+  programs.zsh.initContent = ''
+    # Re-read SSH_AUTH_SOCK from tmux, which refreshes it on every client
+    # attach. Cheap: one tmux round-trip per prompt, and a no-op when unchanged.
+    if [ -n "$TMUX" ]; then
+      _refresh_ssh_auth_sock() {
+        local v
+        v=$(command tmux show-environment SSH_AUTH_SOCK 2>/dev/null) || return
+        v=''${v#SSH_AUTH_SOCK=}
+        if [ -S "$v" ] && [ "$v" != "$SSH_AUTH_SOCK" ]; then
+          export SSH_AUTH_SOCK="$v"
+        fi
+      }
+      precmd_functions+=(_refresh_ssh_auth_sock)
+    fi
+  '';
 }
