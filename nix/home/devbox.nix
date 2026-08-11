@@ -24,6 +24,14 @@ in
     floxPkg
   ];
 
+  # direnv, with nix-direnv's caching so `use flake` does not re-evaluate on
+  # every cd. Pairs with flox, which drives its environments through direnv.
+  # enableZshIntegration defaults on, so the hook is installed already.
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+
   # Opt out of flox's usage metrics.
   #
   # Done by invoking flox rather than writing ~/.config/flox/flox.toml from the
