@@ -13,9 +13,14 @@
       url = "github:nix-community/nixGL";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # flox is not in nixpkgs; upstream ships it as its own flake.
+    # Deliberately NOT following nixpkgs, unlike every other input here:
+    # overriding flox's pinned nixpkgs changes every derivation hash, so nothing
+    # in cache.flox.dev matches any more and the whole thing builds from source.
+    flox.url = "github:flox/flox/latest";
   };
 
-  outputs = { self, nixpkgs, home-manager, zig-overlay, nixgl, ... }:
+  outputs = { self, nixpkgs, home-manager, zig-overlay, nixgl, flox, ... }:
     let
       mkPkgs = system: overlays: import nixpkgs {
         inherit system;
@@ -27,7 +32,7 @@
       mkHome = system: overlays: extraModules:
         home-manager.lib.homeManagerConfiguration {
           pkgs = mkPkgs system overlays;
-          extraSpecialArgs = { inherit zig-overlay system; };
+          extraSpecialArgs = { inherit zig-overlay system flox; };
           modules = [ ./nix/home/default.nix ] ++ extraModules;
         };
     in {

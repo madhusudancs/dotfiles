@@ -10,12 +10,60 @@
 #   home-manager switch --flake .#madhu-devbox
 # (No --impure needed here: nothing in this path probes host GPU hardware.)
 
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, system, flox, ... }:
+
+let
+  floxPkg = flox.packages.${system}.default;
+in
 
 {
   # Devbox-only packages. Inherited packages come from default.nix and linux.nix.
-  home.packages = with pkgs; [
+  home.packages = [
+    # Not pkgs.flox -- flox is not in nixpkgs. Comes from the flake input, which
+    # flake.nix keeps on its own nixpkgs pin on purpose (see the comment there).
+    floxPkg
   ];
+
+  # Opt out of flox's usage metrics.
+  #
+  # Done by invoking flox rather than writing ~/.config/flox/flox.toml from the
+  # store, because flox owns that file: it rewrites it for trusted_environments,
+  # auto_activate_environments and the FloxHub token. A home.file symlink there
+  # gets *replaced* by a regular file on flox's first write (verified), which
+  # then collides with the next activation. Letting flox make the edit keeps the
+  # file flox's and the TOML valid.
+  home.activation.floxDisableMetrics = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if ! ${floxPkg}/bin/flox config -l 2>/dev/null | grep -q '^disable_metrics = true'; then
+      $DRY_RUN_CMD ${floxPkg}/bin/flox config --set disable_metrics true
+    fi
+  '';
+
+  # flox ships prebuilt binaries in its own cache and nothing else; none of it is
+  # on cache.nixos.org. Without this the activation package needs ~1200
+  # derivations built from source (flox is a Rust workspace with its own
+  # toolchain pin), instead of a download.
+  #
+  # This is only the user half. Substituters named by an untrusted user are
+  # ignored, and this box has trusted-users = root, so it does nothing until
+  # root also declares the cache trusted in /etc/nix/nix.conf:
+  #
+  #   extra-trusted-substituters = https://cache.flox.dev
+  #   extra-trusted-public-keys = flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs=
+  #
+  # followed by `systemctl restart nix-daemon`. The key is pinned in both halves,
+  # so paths are signature-checked regardless of which side names the cache.
+  # Written directly rather than through home-manager's nix.settings: that
+  # module asserts nix.package is set, which would install a second nix into the
+  # profile next to the daemon's. One line of config is not worth that.
+  #
+  # Only extra-substituters belongs here. The matching public key is a
+  # restricted setting, so naming it as a non-trusted user does nothing except
+  # emit "ignoring the client-specified setting 'trusted-public-keys'" on every
+  # single nix invocation -- root already declares it in /etc/nix/nix.conf,
+  # which is what actually signature-checks the paths.
+  home.file.".config/nix/nix.conf".text = ''
+    extra-substituters = https://cache.flox.dev
+  '';
 
   programs.zsh.sessionVariables = {
     # No GUI here, so zed (default.nix's EDITOR) does not exist -- use helix.
