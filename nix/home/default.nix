@@ -1,14 +1,11 @@
 { config, pkgs, lib, zig-overlay, system, ... }:
 
 let
-  # The two files jj's ssh signing backend reads (signing.key and
-  # signing.backends.ssh.allowed-signers below). Spelled with $HOME rather than
-  # config.home.homeDirectory because nono expands it at sandbox setup; the jj
-  # config itself keeps its own literal paths, since jj does no $HOME expansion.
-  sshSigningFiles = [
-    "$HOME/.ssh/commit-signing-key.pub"
-    "$HOME/.ssh/allowed_signers"
-  ];
+  # Directory handed to sandboxed pi sessions via JJ_CONFIG. JJ_CONFIG *replaces*
+  # the user config rather than layering on top of it, so this dir has to carry
+  # a full copy (00-user.toml) before the sandbox override (99-sandbox.toml)
+  # can apply. jj loads a JJ_CONFIG directory's *.toml in sorted order.
+  jjSandboxConfigDir = ".config/jj/pi-sandbox";
 in
 
 {
@@ -274,6 +271,27 @@ in
     la = ["log", "-r", "all()", "--limit", "60"]
   '';
 
+  # The sandbox variant: the exact same config, plus an override layer. Copied
+  # from the attribute above rather than re-stated, so the two cannot drift.
+  home.file."${jjSandboxConfigDir}/00-user.toml".text =
+    config.home.file.".config/jj/config.toml".text;
+
+  home.file."${jjSandboxConfigDir}/99-sandbox.toml".text = ''
+    # Sandboxed pi sessions get no ssh-agent and no ~/.ssh (see the nono profile
+    # below), so signing cannot work in there and "force" would make every jj
+    # command that writes a commit fail. Drop instead: pi writes unsigned
+    # commits, and git.sign-on-push signs them when you push from a normal
+    # shell, with the real key, outside the sandbox.
+    [signing]
+    behavior = "drop"
+
+    # Verification is equally impossible in there (it needs allowed_signers, and
+    # jj round-trips the signature through a temp file under /tmp, which the pi
+    # pack grants write-only). Without this, jj log renders an error per commit.
+    [ui]
+    show-cryptographic-signatures = false
+  '';
+
   # ── Claude Code ───────────────────────────────────────────────────────────
 
   # Starship-claude statusline config (powerline + Catppuccin Mocha + jj-starship).
@@ -331,19 +349,27 @@ in
       "$WORKDIR"
       "$HOME/.config/jj/repos"
     ];
-    # jj signs every commit it writes (signing.behavior = "force" above), so
-    # ssh-keygen must be able to read the *public* key -- and, because
-    # ui.show-cryptographic-signatures = true, allowed_signers to verify. Both
-    # live under ~/.ssh, which nono's `deny_credentials` group blocks wholesale;
-    # a plain filesystem.read grant loses to it, so these need
-    # bypass_protection as well. Without this every jj command that snapshots
-    # the working copy (`st`, `describe`, `new`, ...) dies with
-    # "SSH sign failed ... Couldn't load public key".
-    # Only .pub files are exposed. The private key is not on disk at all --
-    # signing goes through the forwarded ssh-agent socket, which the pack
-    # already lets through.
-    filesystem.read = sshSigningFiles;
-    filesystem.bypass_protection = sshSigningFiles;
+    # Read-only: the JJ_CONFIG dir set below. The .toml files inside are
+    # home-manager symlinks into /nix/store (already readable), but jj has to
+    # list the directory itself, which $HOME is not otherwise granted for.
+    filesystem.read = [ "$HOME/${jjSandboxConfigDir}" ];
+
+    # Keep pi away from the ssh-agent.
+    #
+    # ~/.ssh is blocked by nono's `deny_credentials` group and stays that way --
+    # the point of the JJ_CONFIG override is that pi no longer needs it. But
+    # denying the key files alone would not have been enough: the agent socket
+    # is what actually carries authority, and the forwarded agent holds the
+    # auth keys (madhu-ssh-key, hetzner) alongside the signing one. An agent
+    # cannot be made sign-only -- "sign this blob" is its only operation, and
+    # ssh auth *is* signing a blob -- so anything that can sign a commit through
+    # it can also authenticate as you. Strip the pointer instead.
+    #
+    # This holds up because the sandbox cannot recover the socket path by other
+    # means: /tmp is not listable in there, and /proc/<pid>/environ for other
+    # processes is denied. Both verified; if either regresses, so does this.
+    environment.deny_vars = [ "SSH_AUTH_SOCK" ];
+    environment.set_vars.JJ_CONFIG = "$HOME/${jjSandboxConfigDir}";
   };
 
   # ── Ghostty ───────────────────────────────────────────────────────────────
