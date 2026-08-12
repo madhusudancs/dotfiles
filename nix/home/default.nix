@@ -153,6 +153,35 @@ in
 
       source <(jj util completion zsh)
 
+      # Launch pi in its nono sandbox, granting the one path the profile cannot
+      # name: the main repo behind a secondary jj workspace.
+      #
+      # A secondary workspace's .jj/repo is a *file* holding a path (relative to
+      # .jj/) to the main repo's store, e.g. "../../../dotfiles/.jj/repo". That
+      # path is data inside the workspace, so no $WORKDIR-relative grant can
+      # express it -- and $WORKDIR/.. would hand over every sibling repo. Resolve
+      # it here and grant exactly that one .jj directory. The default workspace
+      # has a *directory* at .jj/repo and needs nothing extra, since $WORKDIR
+      # already covers it. Same thing agent-deck does via --allow.
+      #
+      # Shadows the pi binary on purpose. No recursion: nono execs pi directly,
+      # so the function does not exist in that context.
+      pi() {
+        local -a extra
+        local root repo main
+        root=$(command jj workspace root 2>/dev/null)
+        if [ -n "$root" ] && [ -f "$root/.jj/repo" ]; then
+          repo=$(<"$root/.jj/repo") || return 1
+          main=$(cd "$root/.jj" && cd "''${repo:h}" && pwd -P) || return 1
+          extra=(--allow "$main")
+          # Colocated repos keep the git backend beside .jj, and jj opens that
+          # too -- without it you get "does not appear to be a git repository".
+          # Metadata dirs only: the main working tree stays out of the sandbox.
+          [ -d "''${main:h}/.git" ] && extra+=(--allow "''${main:h}/.git")
+        fi
+        command nono run --profile pi "''${extra[@]}" -- pi "$@"
+      }
+
       # pnpm
       export PNPM_HOME="$HOME/.local/share/pnpm"
       case ":$PATH:" in
