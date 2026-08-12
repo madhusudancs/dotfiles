@@ -14,6 +14,12 @@
 
 let
   floxPkg = flox.packages.${system}.default;
+
+  # One value, two consumers: the shell session vars below and the agent-deck
+  # env file. Defined once so the two cannot drift -- a single
+  # `ssh -L 19432:localhost:19432` has to cover every session, however it was
+  # started. 19432 is plannotator's own remote-mode default.
+  plannotatorPort = "19432";
 in
 
 {
@@ -23,6 +29,22 @@ in
     # flake.nix keeps on its own nixpkgs pin on purpose (see the comment there).
     floxPkg
   ];
+
+  # Env for agent-deck sessions. agent-deck has no rc file of its own, and its
+  # launch_shell option (which would source ~/.zshrc) explicitly excludes
+  # sandboxed sessions -- so pi-under-nono would never see these. env_files is
+  # the mechanism that reaches every session type; point config.toml at this:
+  #
+  #   env_files = ["~/.agent-deck.env"]
+  #
+  # `export`, not bare assignment: agent-deck sources the file (`[ -f f ] &&
+  # source f`), so an unexported var would stay shell-local and never reach the
+  # agent process.
+  #
+  home.file.".agent-deck.env".text = ''
+    export PLANNOTATOR_REMOTE=1
+    export PLANNOTATOR_PORT=${plannotatorPort}
+  '';
 
   # direnv, with nix-direnv's caching so `use flake` does not re-evaluate on
   # every cd. Pairs with flox, which drives its environments through direnv.
@@ -82,11 +104,11 @@ in
     # Plannotator serves its review UI over HTTP. This host is only ever
     # reached over SSH, so the port has to be forwarded -- pin it instead of
     # taking the random local-mode port, so a single
-    # `ssh -L 19432:localhost:19432` works for every session. 19432 is
-    # plannotator's own remote-mode default; setting it explicitly means it
-    # holds even when the SSH env vars are missing (tmux, cron, a detached
-    # shell) and plannotator would otherwise fall back to local mode.
-    PLANNOTATOR_PORT = "19432";
+    # `ssh -L 19432:localhost:19432` works for every session. Setting it
+    # explicitly means it holds even when the SSH env vars are missing (tmux,
+    # cron, a detached shell) and plannotator would otherwise fall back to
+    # local mode. Shared with the agent-deck env file above.
+    PLANNOTATOR_PORT = plannotatorPort;
 
     # Goes with the pinned port: plannotator infers remote mode from SSH_TTY /
     # SSH_CONNECTION, which are absent in exactly those detached shells, and a
